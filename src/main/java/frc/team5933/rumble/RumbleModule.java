@@ -2,6 +2,7 @@ package frc.team5933.rumble;
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jaci.openrio.toast.lib.log.Logger;
 import jaci.openrio.toast.lib.module.IterativeModule;
 
@@ -10,6 +11,7 @@ public class RumbleModule extends IterativeModule {
     public static Logger logger;
     private BuiltInAccelerometer accel = new BuiltInAccelerometer();
     private Joystick joystick = new Joystick(0);
+    private boolean enabled;
 
     @Override
     public String getModuleName() {
@@ -21,10 +23,22 @@ public class RumbleModule extends IterativeModule {
         return "0.1.0";
     }
 
+    /**
+     * Called on 'Pre-Initialization' of the robot. This is called before the Robot is indicated as 'ready to go'. Inputs
+     * and Outputs should be configured here. This method should not have much over-head
+     */
     @Override
-    public void robotInit() {
-        logger = new Logger("Electric Feel - Team 5933 - Rumble Feedback", Logger.ATTR_DEFAULT);
+    public void prestart() {
+        SmartDashboard.putBoolean("Rumble", true);
+    }
 
+    /**
+     * Called on 'Initialization' of the robot. This is called after the Robot is indicated as 'ready to go'. Things like
+     * Network Communications and Camera Tracking should be initialized here.
+     */
+    @Override
+    public void start() {
+        logger = new Logger("Electric Feel - Team 5933 - Rumble Feedback", Logger.ATTR_DEFAULT);
     }
 
     /**
@@ -45,9 +59,11 @@ public class RumbleModule extends IterativeModule {
      */
     @Override
     public void teleopPeriodic() {
-        double accel_z = accel.getZ();
+        if (SmartDashboard.getBoolean("Rumble")) {
+            double accel_z = accel.getZ();
 
-        joystick.setRumble(Joystick.RumbleType.kLeftRumble, (float) Math.abs(accel_z - 1));
-        joystick.setRumble(Joystick.RumbleType.kRightRumble, (float) Math.abs(accel_z - 1));
+            joystick.setRumble(Joystick.RumbleType.kLeftRumble, (float) Math.abs(accel_z - 1));
+            joystick.setRumble(Joystick.RumbleType.kRightRumble, (float) Math.abs(accel_z - 1));
+        }
     }
 }
