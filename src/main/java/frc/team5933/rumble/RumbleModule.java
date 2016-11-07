@@ -3,24 +3,28 @@ package frc.team5933.rumble;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import jaci.openrio.toast.lib.log.Logger;
 import jaci.openrio.toast.lib.module.IterativeModule;
 
 public class RumbleModule extends IterativeModule {
 
-    public static Logger logger;
     private BuiltInAccelerometer accel = new BuiltInAccelerometer();
-    private Joystick joystick = new Joystick(0);
-    private boolean enabled;
+    private Joystick[] joysticks = {
+        new Joystick(0),
+        new Joystick(1),
+        new Joystick(2),
+        new Joystick(3),
+        new Joystick(4),
+        new Joystick(5)
+    };
 
     @Override
     public String getModuleName() {
-        return "Electric Feel - Team 5933 - Rumble Feedback";
+        return "Team 5933 - Rumble Feedback";
     }
 
     @Override
     public String getModuleVersion() {
-        return "0.1.0";
+        return "0.2.0";
     }
 
     /**
@@ -33,24 +37,17 @@ public class RumbleModule extends IterativeModule {
     }
 
     /**
-     * Called on 'Initialization' of the robot. This is called after the Robot is indicated as 'ready to go'. Things like
-     * Network Communications and Camera Tracking should be initialized here.
-     */
-    @Override
-    public void start() {
-        logger = new Logger("Electric Feel - Team 5933 - Rumble Feedback", Logger.ATTR_DEFAULT);
-    }
-
-    /**
      * Called when the Robot has entered Disabled mode. This should be overridden.
      *
-     * In this module we only make sure that the Rumblers on the Controller stop rumbling.
-     * If we don't do this the Controller will continue to rumble until unplugged from the Driver Station.
+     * In this module we only make sure that the Rumblers on the Controllers stop rumbling.
+     * If we don't do this the Controllers will continue to rumble until unplugged from the Driver Station.
      */
     @Override
     public void disabledInit() {
-        joystick.setRumble(Joystick.RumbleType.kLeftRumble, 0);
-        joystick.setRumble(Joystick.RumbleType.kRightRumble, 0);
+        for (Joystick joystick : joysticks) {
+            joystick.setRumble(Joystick.RumbleType.kLeftRumble, 0);
+            joystick.setRumble(Joystick.RumbleType.kRightRumble, 0);
+        }
     }
 
     /**
@@ -62,8 +59,10 @@ public class RumbleModule extends IterativeModule {
         if (SmartDashboard.getBoolean("Rumble")) {
             double accel_z = accel.getZ();
 
-            joystick.setRumble(Joystick.RumbleType.kLeftRumble, (float) Math.abs(accel_z - 1));
-            joystick.setRumble(Joystick.RumbleType.kRightRumble, (float) Math.abs(accel_z - 1));
+            for (Joystick joystick : joysticks) {
+                joystick.setRumble(Joystick.RumbleType.kLeftRumble, (float) Math.abs(accel_z - 1));
+                joystick.setRumble(Joystick.RumbleType.kRightRumble, (float) Math.abs(accel_z - 1));
+            }
         }
     }
 }
