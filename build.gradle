@@ -1,38 +1,84 @@
-/**
-This is the default build.gradle for Toast modules
-@author Jaci
-*/
-
 buildscript {
   repositories {
-  mavenCentral()
-  maven {
-    name = "GradleRIO"
-    url = "http://dev.imjac.in/maven"
+      mavenCentral()
+      maven {
+          name = "GradleRIO"
+          url = "http://dev.imjac.in/maven"
+      }
   }
-  }
-  dependencies {
-    classpath group: 'jaci.openrio.gradle', name: 'GradleRIO', version: '+', classifier: 'Toast'			//Change this line if you wish to Update GradleRIO
-  }
+    dependencies {
+        classpath group: 'jaci.openrio.gradle', name: 'GradleRIO', version: '+', classifier: 'Toast'
+    }
+}
+
+plugins {
+    id "com.jfrog.bintray" version "1.7"
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
-apply plugin: 'GradleRIO'                                 //Apply the GradleRIO plugin
+apply plugin: 'maven-publish'
+apply plugin: 'GradleRIO'
 
 repositories {
-  maven {
-    name = "Toast"
-    url = "http://dev.imjac.in/maven"
-  }
+    maven {
+        name = "Toast"
+        url = "http://dev.imjac.in/maven"
+    }
+    jcenter()
 }
 
-gradlerio.team = "5933"                                 //Your FRC team number (e.g. 5333 for team 'Can't C#', or 47 for Chief Delphi)
-//gradlerio.rioIP = "10.53.33.20"                         //Uncomment to specify the IP address of the RIO
+gradlerio.team = "5933"
 gradlerio.deployFile = "toast/modules/${archivesBaseName}.jar"
 
+version = "0.2.0"
+
 dependencies {
-  compile group: 'jaci.openrio.toast', name: 'Toast', version: '+'    //Change this line to update Toast
+    compile group: 'jaci.openrio.toast', name: 'Toast', version: '+'
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// add javadoc/source jar tasks as artifacts
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId 'org.usfirst.frc5933'
+            artifactId 'controller_feedback'
+            version project.version
+        }
+    }
+}
+
+bintray {
+    user = bintray_user //this usually comes from gradle.properties file in ~/.gradle
+    key = bintray_api_key //this usually comes from gradle.properties file in ~/.gradle
+    publications = ['mavenJava']
+    pkg {
+        repo = 'toast'
+        name = 'controller_feedback'
+        userOrg = 'judgementcall5933'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/jmchs-robotics/toast-controller_feedback'
+        version {
+            name = project.version
+        }
+    }
 }
